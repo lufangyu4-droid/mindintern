@@ -50,7 +50,6 @@
         .btn-export { background: #0f172a; color: #ffffff; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s ease; }
         .btn-export:hover { background: #1e293b; transform: translateY(-1px); }
 
-        /* 卡片網格與卡片圖片樣式 */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
         .card { 
             background: var(--surface); 
@@ -65,8 +64,8 @@
             transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1); 
         }
         .card:hover { transform: translateY(-4px); box-shadow: var(--card-hover-shadow); }
+        .card.expired { opacity: 0.65; filter: grayscale(20%); }
 
-        /* 卡片頂部封面圖片 */
         .card-cover-wrapper {
             position: relative;
             width: 100%;
@@ -80,9 +79,7 @@
             object-fit: cover;
             transition: transform 0.35s ease;
         }
-        .card:hover .card-cover {
-            transform: scale(1.05);
-        }
+        .card:hover .card-cover { transform: scale(1.05); }
 
         .star-btn { 
             position: absolute; 
@@ -119,6 +116,35 @@
         .badge-area { background: #f1f5f9; color: #475569; }
         .badge-role { background: #fef3c7; color: #b45309; }
         .badge-fb { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+        /* 截止時間標籤樣式 */
+        .badge-deadline {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .badge-deadline.urgent {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            font-weight: 700;
+            animation: pulse 2s infinite;
+        }
+        .badge-deadline.open {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .badge-deadline.expired {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
 
         .card-source { font-size: 0.85rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; }
         .card-title { font-size: 1.05rem; font-weight: 700; color: var(--text-title); line-height: 1.5; margin-bottom: 1.25rem; flex-grow: 1; word-break: break-word; }
@@ -179,21 +205,70 @@
         const tabBtns = document.querySelectorAll(".tab-btn");
         const exportBtn = document.getElementById("exportBtn");
 
-        // 依據機構名稱自動對應高解析度意象封面圖
+        // 依據機構名稱自動對應意象封面圖
         function getCoverImage(sourceName) {
             const name = (sourceName || "").toLowerCase();
             if (name.includes("[fb]")) {
-                // 社群 / FB 貼文風格
                 return "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=600&q=80";
             } else if (name.includes("醫院") || name.includes("療養院") || name.includes("院區")) {
-                // 醫療院所 / 精神醫學部
                 return "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=600&q=80";
             } else if (name.includes("大學") || name.includes("學院") || name.includes("學校")) {
-                // 大學校園 / 圖書館 / 心輔中心
                 return "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80";
             } else {
-                // 社區諮商所 / 溫馨會談沙發空間
                 return "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80";
+            }
+        }
+
+        // 核心邏輯：自動解析標題中的截止日期與計算剩餘天數
+        function parseDeadline(title) {
+            if (!title) return { text: "詳見簡章", status: "none", days: 999 };
+
+            const currentYear = new Date().getFullYear();
+            let targetDate = null;
+
+            // 模式 1: 包含民國年或西元年 (例: 114.12.31 或 2026/12/31 或 114年12月31日)
+            const fullDateMatch = title.match(/(?:(?:1[1-2][0-9]|20[2-3][0-9])[\/\.\-年])\s*([0-1]?[0-9])[\/\.\-月]\s*([0-3]?[0-9])日?/);
+            if (fullDateMatch) {
+                let yrStr = fullDateMatch[0].match(/1[1-2][0-9]|20[2-3][0-9]/)[0];
+                let yr = parseInt(yrStr);
+                if (yr < 1900) yr += 1911; // 民國年轉西元
+                const m = parseInt(fullDateMatch[1]) - 1;
+                const d = parseInt(fullDateMatch[2]);
+                targetDate = new Date(yr, m, d, 23, 59, 59);
+            }
+
+            // 模式 2: 純月份與日期 (例: 12/15止, 至1月10日截止, 03.20截止)
+            if (!targetDate) {
+                const shortMatch = title.match(/(?:至|到|於|\~|\-)?\s*([0-1]?[0-9])[\/\.月]\s*([0-3]?[0-9])日?\s*(?:止|截止|前)/);
+                if (shortMatch) {
+                    const m = parseInt(shortMatch[1]) - 1;
+                    const d = parseInt(shortMatch[2]);
+                    targetDate = new Date(currentYear, m, d, 23, 59, 59);
+                    
+                    // 若抓到的日期比今天早超過 60 天，可能是指明年的這個月
+                    const now = new Date();
+                    if ((now - targetDate) / (1000 * 60 * 60 * 24) > 60) {
+                        targetDate.setFullYear(currentYear + 1);
+                    }
+                }
+            }
+
+            if (!targetDate) {
+                return { text: "詳見簡章", status: "none", days: 999 };
+            }
+
+            const today = new Date();
+            const diffTime = targetDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            const dateStr = `${targetDate.getMonth() + 1}/${targetDate.getDate()}`;
+
+            if (diffDays < 0) {
+                return { text: `已截止 (${dateStr})`, status: "expired", days: diffDays };
+            } else if (diffDays <= 7) {
+                return { text: `🔥 剩 ${diffDays} 天 (${dateStr}截止)`, status: "urgent", days: diffDays };
+            } else {
+                return { text: `📅 剩 ${diffDays} 天 (${dateStr}截止)`, status: "open", days: diffDays };
             }
         }
 
@@ -231,6 +306,20 @@
                 return matchArea && matchSearch;
             });
 
+            // 依截止狀態智慧排序：即將截止 (urgent) > 徵件中 (open) > 未標註 (none) > 已截止 (expired)
+            filtered.sort((a, b) => {
+                const da = parseDeadline(a["公告標題"]);
+                const db = parseDeadline(b["公告標題"]);
+                const score = (d) => {
+                    if (d.status === "urgent") return 1;
+                    if (d.status === "open") return 2;
+                    if (d.status === "none") return 3;
+                    return 4; // expired
+                };
+                if (score(da) !== score(db)) return score(da) - score(db);
+                return da.days - db.days;
+            });
+
             stats.innerHTML = `<span class="status-dot"></span> 目前顯示：<strong>${filtered.length}</strong> 筆實習公告`;
 
             if (filtered.length === 0) {
@@ -244,9 +333,12 @@
                 const isFb = item["來源機構"] && item["來源機構"].includes("[FB]");
                 const institutionName = item["來源機構"] ? item["來源機構"].replace("[FB]", "").trim() : "未知機構";
                 const coverUrl = getCoverImage(item["來源機構"]);
+                
+                // 解析截止資訊
+                const deadline = parseDeadline(item["公告標題"]);
 
                 return `
-                    <div class="card">
+                    <div class="card ${deadline.status === 'expired' ? 'expired' : ''}">
                         <div class="card-cover-wrapper">
                             <img src="${coverUrl}" alt="機構意象" class="card-cover" loading="lazy">
                             <button class="star-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite('${encodeURIComponent(itemId)}')" title="${isFav ? '取消收藏' : '加入收藏'}">
@@ -258,6 +350,7 @@
                                 <span class="badge badge-area">${item["地區"] || "全台"}</span>
                                 <span class="badge badge-role">${item["招募類別"] || "實習"}</span>
                                 ${isFb ? '<span class="badge badge-fb">Facebook</span>' : ''}
+                                <span class="badge badge-deadline ${deadline.status}">${deadline.text}</span>
                             </div>
                             <div class="card-source">🏛️ ${institutionName}</div>
                             <div class="card-title">${item["公告標題"]}</div>
@@ -296,12 +389,14 @@
                 return;
             }
 
-            let csvContent = "\uFEFF地區,來源機構,招募類別,公告標題,公告連結\n";
+            let csvContent = "\uFEFF地區,來源機構,招募類別,截止狀態,公告標題,公告連結\n";
             favItems.forEach(item => {
+                const deadline = parseDeadline(item['公告標題']);
                 const row = [
                     `"${item['地區'] || ''}"`,
                     `"${item['來源機構'] || ''}"`,
                     `"${item['招募類別'] || ''}"`,
+                    `"${deadline.text}"`,
                     `"${(item['公告標題'] || '').replace(/"/g, '""')}"`,
                     `"${item['公告連結'] || ''}"`
                 ];
