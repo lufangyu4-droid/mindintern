@@ -4,71 +4,400 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>心實境 MindIntern | 台灣諮商實習公告聯搜網</title>
+    <!-- 引入質感字體 Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --border: #e2e8f0;
-            --star-active: #f59e0b;
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --primary-light: #e0f2fe;
+            --bg-page: #f8fafc;
+            --surface: #ffffff;
+            --text-title: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --card-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --star-gold: #f59e0b;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); padding: 2rem 1rem; }
-        .container { max-width: 1080px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 2rem; }
-        header h1 { font-size: 2rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; }
-        header p { color: var(--text-sub); font-size: 1rem; }
-        
-        .controls { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
-        .search-box input { width: 100%; padding: 0.75rem 1.25rem; font-size: 1rem; border: 1px solid var(--border); border-radius: 9999px; outline: none; background: white; }
-        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
-        
-        .tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
-        .tab-btn { padding: 0.5rem 1rem; border-radius: 9999px; border: 1px solid var(--border); background: white; color: var(--text-sub); font-weight: 500; cursor: pointer; transition: all 0.2s; }
-        .tab-btn:hover { background: #f1f5f9; }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .tab-btn.fav-tab.active { background: #d97706; border-color: #d97706; }
 
-        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
-        .meta-stats { font-size: 0.9rem; color: var(--text-sub); }
-        .btn-export { background: #10b981; color: white; border: none; padding: 0.45rem 0.9rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: background 0.2s; }
-        .btn-export:hover { background: #059669; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; }
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: transform 0.15s, box-shadow 0.15s; }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+        body {
+            background: linear-gradient(180deg, #f0fdf4 0%, #f8fafc 240px);
+            color: var(--text-body);
+            min-height: 100vh;
+            padding: 2.5rem 1rem 5rem 1rem;
+            -webkit-font-smoothing: antialiased;
+        }
 
-        .card-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.75rem; padding-right: 2rem; flex-wrap: wrap; }
-        .badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 600; }
-        .badge-area { background: #e0f2fe; color: #0369a1; }
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+        }
+
+        /* 標題 Header 區域 */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(2, 132, 199, 0.1);
+            color: var(--primary);
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.02em;
+        }
+
+        header h1 {
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: var(--text-title);
+            letter-spacing: -0.02em;
+            margin-bottom: 0.6rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* 搜尋與控制區 Controls */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-wrapper {
+            position: relative;
+            max-width: 680px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.95rem 1.25rem 0.95rem 3.1rem;
+            font-size: 1rem;
+            border: 1.5px solid var(--border-light);
+            border-radius: 9999px;
+            outline: none;
+            background: var(--surface);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        /* 分區按鈕 Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 0.55rem 1.15rem;
+            border-radius: 9999px;
+            border: 1px solid var(--border-light);
+            background: var(--surface);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .tab-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-title);
+            transform: translateY(-1px);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+        }
+
+        .tab-btn.fav-tab.active {
+            background: #ea580c;
+            border-color: #ea580c;
+            box-shadow: 0 4px 10px rgba(234, 88, 12, 0.25);
+        }
+
+        .fav-pill {
+            background: rgba(255,255,255,0.25);
+            padding: 0.1rem 0.45rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+        }
+
+        /* 工具列 Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding: 0 0.25rem;
+        }
+
+        .meta-stats {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-export {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #0f172a;
+            color: #ffffff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-export:hover {
+            background: #1e293b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* 網格 Cards Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 16px;
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-hover-shadow);
+            border-color: #cbd5e1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-bottom: 0.85rem;
+            padding-right: 2.2rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.28rem 0.65rem;
+            border-radius: 6px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-area { background: #f1f5f9; color: #475569; }
         .badge-role { background: #fef3c7; color: #b45309; }
-        .badge-fb { background: #dbeafe; color: #1e40af; }
+        .badge-fb { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 
-        .star-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #cbd5e1; transition: color 0.2s; line-height: 1; }
-        .star-btn.active { color: var(--star-active); }
+        .star-btn {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: transparent;
+            border: none;
+            font-size: 1.45rem;
+            cursor: pointer;
+            color: #cbd5e1;
+            transition: transform 0.15s ease, color 0.15s ease;
+            line-height: 1;
+            padding: 0.2rem;
+        }
 
-        .card-source { font-size: 0.9rem; font-weight: 600; color: #475569; margin-bottom: 0.4rem; }
-        .card-title { font-size: 1.05rem; font-weight: 700; color: #0f172a; line-height: 1.4; margin-bottom: 1rem; flex-grow: 1; }
-        
-        .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; font-size: 0.8rem; color: var(--text-sub); }
-        .btn-link { display: inline-block; padding: 0.4rem 0.85rem; background: var(--primary); color: white; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.85rem; }
-        .btn-link:hover { background: var(--primary-hover); }
-        .empty-tip { text-align: center; color: var(--text-sub); padding: 3rem 0; font-size: 1.1rem; grid-column: 1 / -1; }
+        .star-btn:hover {
+            transform: scale(1.18);
+        }
+
+        .star-btn.active {
+            color: var(--star-gold);
+            text-shadow: 0 1px 4px rgba(245, 158, 11, 0.3);
+        }
+
+        .card-source {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-title);
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
+            flex-grow: 1;
+            word-break: break-word;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .btn-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.45rem 0.95rem;
+            background: #f8fafc;
+            color: var(--primary);
+            border: 1px solid #e0f2fe;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-link:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .empty-tip {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 4rem 1rem;
+            font-size: 1.05rem;
+            grid-column: 1 / -1;
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px dashed var(--border-light);
+        }
+
+        /* 浮動返回頂端按鈕 */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 44px;
+            height: 44px;
+            background: var(--text-title);
+            color: #ffffff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s ease;
+            font-size: 1.1rem;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            background: #1e293b;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
+            <div class="brand-badge">✨ 台灣諮商實習公告聚合引擎</div>
             <h1>心實境 MindIntern</h1>
-            <p>全台諮商心理實習與甄選公告聯搜看板</p>
+            <p>即時彙整全台大專心輔中心、精神醫療院所與社區諮商所之最新全職與兼職實習甄選簡章</p>
         </header>
 
         <div class="controls">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜尋學校名稱、諮商所或關鍵字（如：全職、兼職、特定縣市）...">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="搜尋學校名稱、諮商所或關鍵字（如：全職、兼職、雙北）...">
             </div>
             <div class="tabs">
                 <button class="tab-btn active" data-area="ALL">全部地區</button>
@@ -77,17 +406,23 @@
                 <button class="tab-btn" data-area="中部">中部</button>
                 <button class="tab-btn" data-area="南部">南部</button>
                 <button class="tab-btn" data-area="東部">東部</button>
-                <button class="tab-btn fav-tab" data-area="FAV">⭐ 我的收藏 (<span id="favCount">0</span>)</button>
+                <button class="tab-btn fav-tab" data-area="FAV">⭐ 我的收藏 <span class="fav-pill" id="favCount">0</span></button>
             </div>
         </div>
 
         <div class="toolbar">
-            <div class="meta-stats" id="stats">載入中...</div>
-            <button class="btn-export" id="exportBtn">📥 匯出我的收藏清單 (CSV)</button>
+            <div class="meta-stats" id="stats">
+                <span class="status-dot"></span>
+                <span>載入最新公告中...</span>
+            </div>
+            <button class="btn-export" id="exportBtn">📥 匯出收藏清單 (CSV)</button>
         </div>
 
         <div class="grid" id="cardsGrid"></div>
     </div>
+
+    <!-- 返回頂部按鈕 -->
+    <button class="back-to-top" id="backToTopBtn" title="返回頂部">↑</button>
 
     <script src="data.js"></script>
     <script>
@@ -102,6 +437,7 @@
         const searchInput = document.getElementById("searchInput");
         const tabBtns = document.querySelectorAll(".tab-btn");
         const exportBtn = document.getElementById("exportBtn");
+        const backToTopBtn = document.getElementById("backToTopBtn");
 
         function updateFavCount() {
             favCountSpan.innerText = favorites.length;
@@ -137,10 +473,10 @@
                 return matchArea && matchSearch;
             });
 
-            stats.innerText = `目前顯示：${filtered.length} 筆公告`;
+            stats.innerHTML = `<span class="status-dot"></span> 目前顯示：<strong>${filtered.length}</strong> 筆實習公告`;
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="empty-tip">未發現符合條件的實習公告。</div>`;
+                grid.innerHTML = `<div class="empty-tip">未發現符合條件之實習招募公告。</div>`;
                 return;
             }
 
@@ -148,24 +484,25 @@
                 const itemId = item["公告連結"] || item["公告標題"];
                 const isFav = favorites.includes(itemId);
                 const isFb = item["來源機構"] && item["來源機構"].includes("[FB]");
+                const institutionName = item["來源機構"] ? item["來源機構"].replace("[FB]", "").trim() : "未知機構";
 
                 return `
                     <div class="card">
-                        <button class="star-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite('${encodeURIComponent(itemId)}')">
+                        <button class="star-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite('${encodeURIComponent(itemId)}')" title="${isFav ? '取消收藏' : '加入收藏'}">
                             ${isFav ? '★' : '☆'}
                         </button>
                         <div>
                             <div class="card-header">
                                 <span class="badge badge-area">${item["地區"] || "全台"}</span>
                                 <span class="badge badge-role">${item["招募類別"] || "實習"}</span>
-                                ${isFb ? '<span class="badge badge-fb">FB 貼文</span>' : ''}
+                                ${isFb ? '<span class="badge badge-fb">Facebook</span>' : ''}
                             </div>
-                            <div class="card-source">${item["來源機構"] || "未知機構"}</div>
+                            <div class="card-source">🏛️ ${institutionName}</div>
                             <div class="card-title">${item["公告標題"]}</div>
                         </div>
                         <div class="card-footer">
-                            <span>${item["抓取時間"] ? item["抓取時間"].split(" ")[0] : ""}</span>
-                            <a href="${item["公告連結"]}" target="_blank" class="btn-link">查看公告 ↗</a>
+                            <span>🕒 ${item["抓取時間"] ? item["抓取時間"].split(" ")[0] : "最新"}</span>
+                            <a href="${item["公告連結"]}" target="_blank" rel="noopener noreferrer" class="btn-link">檢視簡章 ↗</a>
                         </div>
                     </div>
                 `;
@@ -186,7 +523,7 @@
             render();
         });
 
-        // 匯出收藏清單為 CSV
+        // 匯出收藏清單 CSV
         exportBtn.addEventListener("click", () => {
             const favItems = list.filter(item => {
                 const itemId = item["公告連結"] || item["公告標題"];
@@ -194,7 +531,7 @@
             });
 
             if (favItems.length === 0) {
-                alert("您目前尚未收藏任何機構，請先點擊卡片右上角星號「☆」加入收藏！");
+                alert("您目前尚未收藏任何機構，請先點擊卡片右上角星號「☆」！");
                 return;
             }
 
@@ -214,9 +551,22 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `我的諮商實習投遞清單_${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = `諮商實習投遞清單_${new Date().toISOString().slice(0,10)}.csv`;
             a.click();
             URL.revokeObjectURL(url);
+        });
+
+        // 返回頂部平滑滾動
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add("show");
+            } else {
+                backToTopBtn.classList.remove("show");
+            }
+        });
+
+        backToTopBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
         updateFavCount();
