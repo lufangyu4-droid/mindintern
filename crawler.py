@@ -212,7 +212,7 @@ def parse_fb(target):
 
 def main():
     print("=" * 80)
-    print("🚀 心實境 (MindIntern) 諮商實習公告【超精準招募過濾版】")
+    print("🚀  諮商實習公告【超精準招募過濾版】")
     print("🛡️ 已封鎖所有個人名冊、諮商預約與非招募資訊")
     print("=" * 80)
 
