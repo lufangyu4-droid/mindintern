@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 import feedparser
 import pandas as pd
 
-# 偽裝瀏覽器標頭，避免防爬機制
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -19,26 +18,41 @@ HEADERS = {
 }
 
 # ==============================================================================
-# 1. 精準過濾條件設定（避免誤抓雜訊）
+# 1. 精準過濾條件設定（徹底過濾現任團隊與非招募資訊）
 # ==============================================================================
+
+# 專業領域核心詞
 PSY_KEYWORDS = [
-    "諮商", "心輔", "心理", "駐地", "輔導", "臨床", "身心", "精神", 
-    "全職實習", "兼職實習", "心理師", "實習心理師"
+    "諮商", "心輔", "心理", "駐地", "輔導", "臨床", "全職實習", "兼職實習"
 ]
 
-RECRUIT_KEYWORDS = [
-    "實習", "駐地", "招募", "甄選", "甄試", "徵聘", "遴選", "心理師"
+# 招募行為動詞/關鍵字（必須有找人的意圖）
+ACTION_RECRUIT_KEYWORDS = [
+    "招募", "甄選", "甄試", "徵聘", "遴選", "誠徵", "徵才", "徵求", 
+    "簡章", "申請辦法", "招募公告", "錄取名單", "初審名單", "複試名單"
 ]
 
-EXCLUDE_KEYWORDS = [
+# 排除黑名單 A：非相關專業與非正職實習
+GENERAL_EXCLUDE = [
     "護理", "藥劑", "藥學", "醫檢", "物理治療", "職能治療", "放射", 
     "營養", "資訊", "工讀生", "工讀", "資工", "社工實習", "社工師",
     "暑期企業實習", "海外實習", "幼兒園", "幼教", "保母", "兼任助理",
     "行政助理", "研究助理", "駕駛", "清潔", "工友"
 ]
 
+# 排除黑名單 B：已在實習的靜態成員介紹、心得、服務預約說明（核心優化）
+STATIC_MEMBER_EXCLUDE = [
+    "團隊介紹", "成員介紹", "中心成員", "師資介紹", "專業團隊", "現任", 
+    "名冊", "人員職掌", "業務職掌", "心輔人員", "個別諮商預約", "諮商預約", 
+    "預約服務", "服務收費", "收費標準", "實習心得", "成果展", "成果發表", 
+    "實習點滴", "生活札記", "工作職掌", "歷屆", "組織架構"
+]
+
+# 合併所有排除詞
+ALL_EXCLUDE = GENERAL_EXCLUDE + STATIC_MEMBER_EXCLUDE
+
 # ==============================================================================
-# 2. 監聽的 Facebook 公開粉專名冊
+# 2. 監聽的 Facebook 公開粉專
 # ==============================================================================
 FB_TARGETS = [
     {"area": "雙北", "name": "看見心理諮商所", "fb_id": "seemind.tw"},
@@ -49,7 +63,7 @@ FB_TARGETS = [
 ]
 
 # ==============================================================================
-# 3. 全台 200+ 間官網目標機構（大專校院、醫療院所、社區諮商所）
+# 3. 目標官網機構名冊
 # ==============================================================================
 TARGETS = [
     # 雙北地區
@@ -94,7 +108,7 @@ TARGETS = [
     {"area": "南部", "name": "國立成功大學 心理健康與諮商輔導組", "url": "https://counseling.sa.ncku.edu.tw/", "base_url": "https://counseling.sa.ncku.edu.tw"},
     {"area": "南部", "name": "國立中山大學 諮商與職涯發展組", "url": "https://counsel.nsysu.edu.tw/", "base_url": "https://counsel.nsysu.edu.tw"},
     {"area": "南部", "name": "國立高雄師範大學 學生輔導中心", "url": "https://counseling.nknu.edu.tw/", "base_url": "https://counseling.nknu.edu.tw"},
-    {"area": "南部", "name": "高雄市立凱旋醫院(精神專科醫院)", "url": "https://ksp.kcg.gov.tw/", "base_url": "https://ksp.kcg.gov.tw"},
+    {"area": "南部", "name": "高雄市立凱旋醫院", "url": "https://ksp.kcg.gov.tw/", "base_url": "https://ksp.kcg.gov.tw"},
     {"area": "南部", "name": "衛生福利部嘉南療養院", "url": "https://www.cnpc.mohw.gov.tw/", "base_url": "https://www.cnpc.mohw.gov.tw"},
     {"area": "南部", "name": "寬欣心理諮商所(台南)", "url": "https://www.kuan-hsin.tw/", "base_url": "https://www.kuan-hsin.tw"},
 
@@ -103,7 +117,22 @@ TARGETS = [
     {"area": "東部", "name": "花蓮慈濟醫院 精神醫學部", "url": "https://hlm.tzuchi.com.tw/psy/", "base_url": "https://hlm.tzuchi.com.tw"}
 ]
 
-# 抓取官網一般公告
+def is_valid_recruitment(title, site_name):
+    # 1. 命中黑名單（非相關科系 或 靜態名冊/心得）直接排除
+    if any(bad in title for bad in ALL_EXCLUDE):
+        return False
+
+    # 2. 必須含有主動招募意圖（招募/甄選/簡章/徵求等）
+    has_recruit_intent = any(act in title for act in ACTION_RECRUIT_KEYWORDS)
+    if not has_recruit_intent:
+        return False
+
+    # 3. 領域確認：標題含有心理專業詞彙，或是該機構本身就是諮商/心輔單位
+    has_psy_keyword = any(p in title for p in PSY_KEYWORDS)
+    is_psy_unit = ("諮商" in site_name or "心輔" in site_name or "心理" in site_name)
+
+    return has_psy_keyword or is_psy_unit
+
 def parse_target(target):
     area = target["area"]
     site_name = target["name"]
@@ -126,22 +155,15 @@ def parse_target(target):
 
                 full_url = urllib.parse.urljoin(base_url, raw_href)
 
-                if any(bad in title for bad in EXCLUDE_KEYWORDS):
-                    continue
-
-                has_psy = any(p in title for p in PSY_KEYWORDS)
-                has_recruit = any(r in title for r in RECRUIT_KEYWORDS)
-                is_psy_institution = ("諮商" in site_name or "心輔" in site_name or "心理" in site_name)
-
-                if (is_psy_institution and has_recruit) or (has_psy and has_recruit):
+                if is_valid_recruitment(title, site_name):
                     if "全職" in title or "駐地" in title:
                         role = "全職實習"
                     elif "兼職" in title:
                         role = "兼職實習"
                     elif "心理師" in title:
-                        role = "心理師招募"
+                        role = "心理師甄選"
                     else:
-                        role = "實習甄選"
+                        role = "實習招募"
 
                     items.append({
                         "地區": area,
@@ -155,7 +177,6 @@ def parse_target(target):
         pass
     return items
 
-# 抓取 FB 公開粉專最新貼文
 def parse_fb(target):
     area = target["area"]
     site_name = target["name"]
@@ -172,13 +193,7 @@ def parse_fb(target):
             clean_text = re.sub(r"<[^>]+>", "", description)
             full_text = f"{title} {clean_text}"
 
-            if any(bad in full_text for bad in EXCLUDE_KEYWORDS):
-                continue
-
-            has_psy = any(p in full_text for p in PSY_KEYWORDS)
-            has_recruit = any(r in full_text for r in RECRUIT_KEYWORDS)
-
-            if has_psy and has_recruit:
+            if is_valid_recruitment(full_text, site_name):
                 role = "FB全職實習" if ("全職" in full_text or "駐地" in full_text) else ("FB兼職實習" if "兼職" in full_text else "FB實習招募")
                 summary = clean_text[:60] + "..." if len(clean_text) > 60 else (clean_text or title)
 
@@ -196,30 +211,27 @@ def parse_fb(target):
 
 def main():
     print("=" * 80)
-    print("🚀 心實境 (MindIntern) 全台諮商實習公告【官網 ＋ FB 粉專雙軌大聯搜】")
-    print("⚡ 啟用 20 條平行通道同步高速掃描中...")
+    print("🚀 心實境 (MindIntern) 諮商實習公告【嚴格招募過濾版】")
+    print("🛡️ 已啟用「現任成員介紹 / 預約選單 / 實習心得」全自動過濾機制")
     print("=" * 80)
 
     all_data = []
 
-    # 1. 多線程掃描機構官網
     with ThreadPoolExecutor(max_workers=20) as executor:
         web_results = executor.map(parse_target, TARGETS)
         for res in web_results:
             all_data.extend(res)
 
-    # 2. 多線程掃描 FB 公開粉專
-    print("📱 正在同步檢查諮商所 FB 公開粉專貼文...")
+    print("📱 正在檢查諮商所 FB 公開粉專招募動態...")
     with ThreadPoolExecutor(max_workers=5) as executor:
         fb_results = executor.map(parse_fb, FB_TARGETS)
         for res in fb_results:
             all_data.extend(res)
 
     if not all_data:
-        print("\n💡 掃描完畢，目前暫無符合條件之新公告。")
+        print("\n💡 目前各機構暫無新發布之實習招募簡章。")
         return
 
-    # 去重與排序
     df = pd.DataFrame(all_data)
     df.drop_duplicates(subset=["公告標題"], keep="first", inplace=True)
 
@@ -232,16 +244,14 @@ def main():
     filename = "最新實習招募清單.csv"
     df.to_csv(filename, index=False, encoding="utf-8-sig")
 
-    # 同步輸出網頁專用 data.js
+    # 輸出 data.js
     json_data = df.to_json(orient="records", force_ascii=False)
     with open("data.js", "w", encoding="utf-8") as f:
         f.write(f"const internData = {json_data};")
 
     print("\n" + "=" * 80)
-    print(f"🎉 官網與 FB 貼文全數掃描完成！")
-    print(f"📊 共尋獲 {len(df)} 筆有效實習公告")
-    print(f"📁 檔案已覆蓋更新至：【{filename}】")
-    print("🌐 網頁資料檔已同步產生：【data.js】")
+    print(f"🎉 篩選完成！共尋獲 {len(df)} 筆真正的【實習招募 / 甄選公告】")
+    print(f"📁 檔案已更新至：【{filename}】與【data.js】")
     print("=" * 80)
 
 if __name__ == "__main__":
