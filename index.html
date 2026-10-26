@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心實境 MindIntern | 台灣諮商實習公告聯搜網</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); padding: 2rem 1rem; }
+        .container { max-width: 1080px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { font-size: 2rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; }
+        header p { color: var(--text-sub); font-size: 1rem; }
+        .controls { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+        .search-box input { width: 100%; padding: 0.75rem 1.25rem; font-size: 1rem; border: 1px solid var(--border); border-radius: 9999px; outline: none; background: white; }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+        .tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+        .tab-btn { padding: 0.5rem 1rem; border-radius: 9999px; border: 1px solid var(--border); background: white; color: var(--text-sub); font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .tab-btn:hover { background: #f1f5f9; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .meta-stats { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.15s, box-shadow 0.15s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+        .badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 600; }
+        .badge-area { background: #e0f2fe; color: #0369a1; }
+        .badge-role { background: #fef3c7; color: #b45309; }
+        .card-source { font-size: 0.9rem; font-weight: 600; color: #475569; margin-bottom: 0.4rem; }
+        .card-title { font-size: 1.05rem; font-weight: 700; color: #0f172a; line-height: 1.4; margin-bottom: 1rem; flex-grow: 1; }
+        .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; font-size: 0.8rem; color: var(--text-sub); }
+        .btn-link { display: inline-block; padding: 0.4rem 0.85rem; background: var(--primary); color: white; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.85rem; }
+        .btn-link:hover { background: var(--primary-hover); }
+        .empty-tip { text-align: center; color: var(--text-sub); padding: 3rem 0; font-size: 1.1rem; grid-column: 1 / -1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>心實境 MindIntern</h1>
+            <p>全台諮商心理實習與甄選公告聯搜看板</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜尋學校名稱、諮商所或關鍵字（如：全職、兼職、台大）...">
+            </div>
+            <div class="tabs">
+                <button class="tab-btn active" data-area="ALL">全部地區</button>
+                <button class="tab-btn" data-area="雙北">雙北</button>
+                <button class="tab-btn" data-area="桃竹苗">桃竹苗</button>
+                <button class="tab-btn" data-area="中部">中部</button>
+                <button class="tab-btn" data-area="南部">南部</button>
+                <button class="tab-btn" data-area="東部">東部</button>
+            </div>
+        </div>
+
+        <div class="meta-stats" id="stats">載入中...</div>
+        <div class="grid" id="cardsGrid"></div>
+    </div>
+
+    <!-- 嘗試載入外部爬蟲產生的 data.js -->
+    <script src="data.js"></script>
+    <script>
+        // 內建示範資料，若 data.js 尚未產生也能正常展示卡片
+        const defaultSampleData = [
+            {"地區": "雙北", "來源機構": "臺灣師範大學 學生輔導中心", "招募類別": "全職實習", "公告標題": "114學年度全職實習諮商心理師甄選簡章公告", "公告連結": "https://counseling.sa.ntnu.edu.tw/", "抓取時間": "2026-10-25 10:00"},
+            {"地區": "雙北", "來源機構": "臺灣大學 學生心理輔導中心", "招募類別": "全職實習", "公告標題": "114學年度全職駐地實習心理師招募簡章", "公告連結": "https://counseling.ntu.edu.tw/", "抓取時間": "2026-10-25 10:00"},
+            {"地區": "雙北", "來源機構": "看見心理諮商所", "招募類別": "全職實習", "公告標題": "誠徵 114 學年度全職實習諮商心理師", "公告連結": "https://www.seemind.com.tw/", "抓取時間": "2026-10-25 10:00"},
+            {"地區": "桃竹苗", "來源機構": "國立清華大學 諮商中心", "招募類別": "兼職實習", "公告標題": "114學年度兼職實習諮商心理師甄選", "公告連結": "https://counsel.site.nthu.edu.tw/", "抓取時間": "2026-10-25 10:00"},
+            {"地區": "中部", "來源機構": "國立中興大學 學生諮商中心", "招募類別": "全職實習", "公告標題": "中興大學諮商中心誠徵駐地實習心理師", "公告連結": "https://osa.nchu.edu.tw/", "抓取時間": "2026-10-25 10:00"},
+            {"地區": "南部", "來源機構": "國立成功大學 心理健康與諮商組", "招募類別": "全職實習", "公告標題": "成大心輔組全職實習心理師甄審簡章", "公告連結": "https://counseling.sa.ncku.edu.tw/", "抓取時間": "2026-10-25 10:00"}
+        ];
+
+        let currentArea = "ALL";
+        let searchQuery = "";
+        let list = (typeof internData !== "undefined" && internData.length > 0) ? internData : defaultSampleData;
+
+        const grid = document.getElementById("cardsGrid");
+        const stats = document.getElementById("stats");
+        const searchInput = document.getElementById("searchInput");
+        const tabBtns = document.querySelectorAll(".tab-btn");
+
+        function render() {
+            const filtered = list.filter(item => {
+                const matchArea = currentArea === "ALL" || (item["地區"] && item["地區"].includes(currentArea));
+                const text = `${item["來源機構"] || ""} ${item["公告標題"] || ""} ${item["招募類別"] || ""}`.toLowerCase();
+                const matchSearch = text.includes(searchQuery.toLowerCase());
+                return matchArea && matchSearch;
+            });
+
+            stats.innerText = `目前顯示：${filtered.length} 筆實習職缺` + (typeof internData === "undefined" ? "（展示模式：尚未連線到 data.js）" : "（即時連線中）");
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="empty-tip">未發現符合條件的實習公告。</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="card">
+                    <div>
+                        <div class="card-header">
+                            <span class="badge badge-area">${item["地區"] || "全台"}</span>
+                            <span class="badge badge-role">${item["招募類別"] || "實習"}</span>
+                        </div>
+                        <div class="card-source">${item["來源機構"] || "未知機構"}</div>
+                        <div class="card-title">${item["公告標題"]}</div>
+                    </div>
+                    <div class="card-footer">
+                        <span>${item["抓取時間"] ? item["抓取時間"].split(" ")[0] : ""}</span>
+                        <a href="${item["公告連結"]}" target="_blank" class="btn-link">檢視簡章 ↗</a>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                tabBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                currentArea = btn.getAttribute("data-area");
+                render();
+            });
+        });
+
+        searchInput.addEventListener("input", (e) => {
+            searchQuery = e.target.value.trim();
+            render();
+        });
+
+        render();
+    </script>
+</body>
+</html>
