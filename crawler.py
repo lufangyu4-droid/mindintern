@@ -18,18 +18,18 @@ HEADERS = {
 }
 
 # ==============================================================================
-# 1. 精準過濾條件設定（徹底過濾現任團隊與非招募資訊）
+# 1. 嚴格過濾規則設定（徹底剔除心理師名冊、心得與無關職缺）
 # ==============================================================================
 
-# 專業領域核心詞
-PSY_KEYWORDS = [
-    "諮商", "心輔", "心理", "駐地", "輔導", "臨床", "全職實習", "兼職實習"
-]
-
-# 招募行為動詞/關鍵字（必須有找人的意圖）
-ACTION_RECRUIT_KEYWORDS = [
+# 核心防線：標題「必須」含有以下招募動詞，否則一律不抓取（杜絕純人名介紹頁）
+MUST_HAVE_ACTION = [
     "招募", "甄選", "甄試", "徵聘", "遴選", "誠徵", "徵才", "徵求", 
     "簡章", "申請辦法", "招募公告", "錄取名單", "初審名單", "複試名單"
+]
+
+# 專業領域關鍵字
+PSY_KEYWORDS = [
+    "諮商", "心輔", "心理", "駐地", "輔導", "臨床", "全職實習", "兼職實習", "實習"
 ]
 
 # 排除黑名單 A：非相關專業與非正職實習
@@ -40,7 +40,7 @@ GENERAL_EXCLUDE = [
     "行政助理", "研究助理", "駕駛", "清潔", "工友"
 ]
 
-# 排除黑名單 B：已在實習的靜態成員介紹、心得、服務預約說明（核心優化）
+# 排除黑名單 B：成員介紹、預約選單、收費、實習心得
 STATIC_MEMBER_EXCLUDE = [
     "團隊介紹", "成員介紹", "中心成員", "師資介紹", "專業團隊", "現任", 
     "名冊", "人員職掌", "業務職掌", "心輔人員", "個別諮商預約", "諮商預約", 
@@ -48,7 +48,6 @@ STATIC_MEMBER_EXCLUDE = [
     "實習點滴", "生活札記", "工作職掌", "歷屆", "組織架構"
 ]
 
-# 合併所有排除詞
 ALL_EXCLUDE = GENERAL_EXCLUDE + STATIC_MEMBER_EXCLUDE
 
 # ==============================================================================
@@ -118,16 +117,16 @@ TARGETS = [
 ]
 
 def is_valid_recruitment(title, site_name):
-    # 1. 命中黑名單（非相關科系 或 靜態名冊/心得）直接排除
+    # 1. 命中黑名單直接剔除
     if any(bad in title for bad in ALL_EXCLUDE):
         return False
 
-    # 2. 必須含有主動招募意圖（招募/甄選/簡章/徵求等）
-    has_recruit_intent = any(act in title for act in ACTION_RECRUIT_KEYWORDS)
-    if not has_recruit_intent:
+    # 2. 核心過濾：標題必須明確包含招募動作詞
+    has_action = any(act in title for act in MUST_HAVE_ACTION)
+    if not has_action:
         return False
 
-    # 3. 領域確認：標題含有心理專業詞彙，或是該機構本身就是諮商/心輔單位
+    # 3. 領域確認：必須屬於心理/諮商/實習領域
     has_psy_keyword = any(p in title for p in PSY_KEYWORDS)
     is_psy_unit = ("諮商" in site_name or "心輔" in site_name or "心理" in site_name)
 
@@ -160,10 +159,12 @@ def parse_target(target):
                         role = "全職實習"
                     elif "兼職" in title:
                         role = "兼職實習"
-                    elif "心理師" in title:
-                        role = "心理師甄選"
-                    else:
+                    elif "實習" in title:
                         role = "實習招募"
+                    elif "心理師" in title:
+                        role = "心理師招募"
+                    else:
+                        role = "招募公告"
 
                     items.append({
                         "地區": area,
@@ -211,8 +212,8 @@ def parse_fb(target):
 
 def main():
     print("=" * 80)
-    print("🚀 心實境 (MindIntern) 諮商實習公告【嚴格招募過濾版】")
-    print("🛡️ 已啟用「現任成員介紹 / 預約選單 / 實習心得」全自動過濾機制")
+    print("🚀 心實境 (MindIntern) 諮商實習公告【超精準招募過濾版】")
+    print("🛡️ 已封鎖所有個人名冊、諮商預約與非招募資訊")
     print("=" * 80)
 
     all_data = []
@@ -222,14 +223,14 @@ def main():
         for res in web_results:
             all_data.extend(res)
 
-    print("📱 正在檢查諮商所 FB 公開粉專招募動態...")
+    print("📱 正在檢查諮商所 FB 公開粉專最新貼文...")
     with ThreadPoolExecutor(max_workers=5) as executor:
         fb_results = executor.map(parse_fb, FB_TARGETS)
         for res in fb_results:
             all_data.extend(res)
 
     if not all_data:
-        print("\n💡 目前各機構暫無新發布之實習招募簡章。")
+        print("\n💡 目前各機構暫無新發布之實習招募公告。")
         return
 
     df = pd.DataFrame(all_data)
@@ -250,8 +251,8 @@ def main():
         f.write(f"const internData = {json_data};")
 
     print("\n" + "=" * 80)
-    print(f"🎉 篩選完成！共尋獲 {len(df)} 筆真正的【實習招募 / 甄選公告】")
-    print(f"📁 檔案已更新至：【{filename}】與【data.js】")
+    print(f"🎉 篩選完成！共尋獲 {len(df)} 筆真實【實習/招募公告】")
+    print(f"📁 檔案已覆蓋至：【{filename}】與【data.js】")
     print("=" * 80)
 
 if __name__ == "__main__":
