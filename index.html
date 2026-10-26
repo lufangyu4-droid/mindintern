@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>心實境 MindIntern | 台灣諮商實習公告聯搜網</title>
-    <!-- 引入質感字體 Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -12,7 +11,6 @@
         :root {
             --primary: #0284c7;
             --primary-hover: #0369a1;
-            --primary-light: #e0f2fe;
             --bg-page: #f8fafc;
             --surface: #ffffff;
             --text-title: #0f172a;
@@ -20,370 +18,116 @@
             --text-muted: #64748b;
             --border-light: #e2e8f0;
             --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-            --card-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --card-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
             --star-gold: #f59e0b;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Noto Sans TC', sans-serif; }
+        body { background: linear-gradient(180deg, #f0fdf4 0%, #f8fafc 260px); color: var(--text-body); min-height: 100vh; padding: 2.5rem 1rem 5rem 1rem; }
+        .container { max-width: 1140px; margin: 0 auto; }
+        
+        header { text-align: center; margin-bottom: 2.5rem; }
+        .brand-badge { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; font-weight: 600; background: rgba(2, 132, 199, 0.1); color: var(--primary); padding: 0.35rem 0.85rem; border-radius: 9999px; margin-bottom: 0.75rem; }
+        header h1 { font-size: 2.3rem; font-weight: 800; color: var(--text-title); letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+        header p { color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto; line-height: 1.6; }
 
-        body {
-            background: linear-gradient(180deg, #f0fdf4 0%, #f8fafc 240px);
-            color: var(--text-body);
-            min-height: 100vh;
-            padding: 2.5rem 1rem 5rem 1rem;
-            -webkit-font-smoothing: antialiased;
-        }
+        .controls { display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem; }
+        .search-wrapper { position: relative; max-width: 680px; margin: 0 auto; width: 100%; }
+        .search-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); font-size: 1.1rem; color: #94a3b8; pointer-events: none; }
+        .search-input { width: 100%; padding: 0.95rem 1.25rem 0.95rem 3.1rem; font-size: 1rem; border: 1.5px solid var(--border-light); border-radius: 9999px; outline: none; background: var(--surface); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); transition: all 0.25s ease; }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12); }
 
-        .container {
-            max-width: 1140px;
-            margin: 0 auto;
-        }
+        .tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+        .tab-btn { padding: 0.55rem 1.15rem; border-radius: 9999px; border: 1px solid var(--border-light); background: var(--surface); color: var(--text-muted); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.35rem; }
+        .tab-btn:hover { background: #f1f5f9; color: var(--text-title); transform: translateY(-1px); }
+        .tab-btn.active { background: var(--primary); color: #ffffff; border-color: var(--primary); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25); }
+        .tab-btn.fav-tab.active { background: #ea580c; border-color: #ea580c; }
+        .fav-pill { background: rgba(255,255,255,0.25); padding: 0.1rem 0.45rem; border-radius: 9999px; font-size: 0.75rem; }
 
-        /* 標題 Header 區域 */
-        header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem; }
+        .meta-stats { font-size: 0.92rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; }
+        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+        .btn-export { background: #0f172a; color: #ffffff; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s ease; }
+        .btn-export:hover { background: #1e293b; transform: translateY(-1px); }
 
-        .brand-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            background: rgba(2, 132, 199, 0.1);
-            color: var(--primary);
-            padding: 0.35rem 0.85rem;
-            border-radius: 9999px;
-            margin-bottom: 0.75rem;
-            letter-spacing: 0.02em;
+        /* 卡片網格與卡片圖片樣式 */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
+        .card { 
+            background: var(--surface); 
+            border: 1px solid rgba(226, 232, 240, 0.8); 
+            border-radius: 16px; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            position: relative; 
+            box-shadow: var(--card-shadow); 
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1); 
         }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--card-hover-shadow); }
 
-        header h1 {
-            font-size: 2.3rem;
-            font-weight: 800;
-            color: var(--text-title);
-            letter-spacing: -0.02em;
-            margin-bottom: 0.6rem;
-        }
-
-        header p {
-            color: var(--text-muted);
-            font-size: 1.05rem;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        /* 搜尋與控制區 Controls */
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            margin-bottom: 2rem;
-        }
-
-        .search-wrapper {
+        /* 卡片頂部封面圖片 */
+        .card-cover-wrapper {
             position: relative;
-            max-width: 680px;
-            margin: 0 auto;
             width: 100%;
+            height: 140px;
+            overflow: hidden;
+            background: #e2e8f0;
         }
-
-        .search-icon {
-            position: absolute;
-            left: 1.25rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.1rem;
-            color: #94a3b8;
-            pointer-events: none;
-        }
-
-        .search-input {
+        .card-cover {
             width: 100%;
-            padding: 0.95rem 1.25rem 0.95rem 3.1rem;
-            font-size: 1rem;
-            border: 1.5px solid var(--border-light);
-            border-radius: 9999px;
-            outline: none;
-            background: var(--surface);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-            transition: all 0.25s ease;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.35s ease;
+        }
+        .card:hover .card-cover {
+            transform: scale(1.05);
         }
 
-        .search-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
-        }
-
-        /* 分區按鈕 Tabs */
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .tab-btn {
-            padding: 0.55rem 1.15rem;
-            border-radius: 9999px;
-            border: 1px solid var(--border-light);
-            background: var(--surface);
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-        }
-
-        .tab-btn:hover {
-            background: #f1f5f9;
-            color: var(--text-title);
-            transform: translateY(-1px);
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: #ffffff;
-            border-color: var(--primary);
-            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
-        }
-
-        .tab-btn.fav-tab.active {
-            background: #ea580c;
-            border-color: #ea580c;
-            box-shadow: 0 4px 10px rgba(234, 88, 12, 0.25);
-        }
-
-        .fav-pill {
-            background: rgba(255,255,255,0.25);
-            padding: 0.1rem 0.45rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-        }
-
-        /* 工具列 Toolbar */
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            padding: 0 0.25rem;
-        }
-
-        .meta-stats {
-            font-size: 0.92rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #10b981;
+        .star-btn { 
+            position: absolute; 
+            top: 0.75rem; 
+            right: 0.75rem; 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(4px);
+            border: none; 
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-        }
-
-        .btn-export {
-            display: inline-flex;
+            font-size: 1.25rem; 
+            cursor: pointer; 
+            color: #94a3b8; 
+            display: flex;
             align-items: center;
-            gap: 0.4rem;
-            background: #0f172a;
-            color: #ffffff;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
+            justify-content: center;
+            transition: all 0.2s ease; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            z-index: 2;
         }
+        .star-btn:hover { transform: scale(1.1); background: #ffffff; }
+        .star-btn.active { color: var(--star-gold); background: #ffffff; }
 
-        .btn-export:hover {
-            background: #1e293b;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        /* 網格 Cards Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .card {
-            background: var(--surface);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            border-radius: 16px;
-            padding: 1.4rem;
+        .card-body {
+            padding: 1.25rem;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s;
+            flex-grow: 1;
         }
 
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--card-hover-shadow);
-            border-color: #cbd5e1;
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            margin-bottom: 0.85rem;
-            padding-right: 2.2rem;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            font-size: 0.75rem;
-            padding: 0.28rem 0.65rem;
-            border-radius: 6px;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-        }
-
+        .card-header { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+        .badge { font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 6px; font-weight: 600; }
         .badge-area { background: #f1f5f9; color: #475569; }
         .badge-role { background: #fef3c7; color: #b45309; }
         .badge-fb { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 
-        .star-btn {
-            position: absolute;
-            top: 1.25rem;
-            right: 1.25rem;
-            background: transparent;
-            border: none;
-            font-size: 1.45rem;
-            cursor: pointer;
-            color: #cbd5e1;
-            transition: transform 0.15s ease, color 0.15s ease;
-            line-height: 1;
-            padding: 0.2rem;
-        }
+        .card-source { font-size: 0.85rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; }
+        .card-title { font-size: 1.05rem; font-weight: 700; color: var(--text-title); line-height: 1.5; margin-bottom: 1.25rem; flex-grow: 1; word-break: break-word; }
 
-        .star-btn:hover {
-            transform: scale(1.18);
-        }
+        .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid #f1f5f9; font-size: 0.82rem; color: var(--text-muted); }
+        .btn-link { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.45rem 0.95rem; background: #f8fafc; color: var(--primary); border: 1px solid #e0f2fe; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; }
+        .btn-link:hover { background: var(--primary); color: #ffffff; border-color: var(--primary); }
 
-        .star-btn.active {
-            color: var(--star-gold);
-            text-shadow: 0 1px 4px rgba(245, 158, 11, 0.3);
-        }
-
-        .card-source {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #64748b;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-title);
-            line-height: 1.5;
-            margin-bottom: 1.25rem;
-            flex-grow: 1;
-            word-break: break-word;
-        }
-
-        .card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 1rem;
-            border-top: 1px solid #f1f5f9;
-            font-size: 0.82rem;
-            color: var(--text-muted);
-        }
-
-        .btn-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.45rem 0.95rem;
-            background: #f8fafc;
-            color: var(--primary);
-            border: 1px solid #e0f2fe;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn-link:hover {
-            background: var(--primary);
-            color: #ffffff;
-            border-color: var(--primary);
-        }
-
-        .empty-tip {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 4rem 1rem;
-            font-size: 1.05rem;
-            grid-column: 1 / -1;
-            background: var(--surface);
-            border-radius: 16px;
-            border: 1px dashed var(--border-light);
-        }
-
-        /* 浮動返回頂端按鈕 */
-        .back-to-top {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 44px;
-            height: 44px;
-            background: var(--text-title);
-            color: #ffffff;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.25s ease;
-            font-size: 1.1rem;
-        }
-
-        .back-to-top.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .back-to-top:hover {
-            transform: translateY(-3px);
-            background: #1e293b;
-        }
+        .empty-tip { text-align: center; color: var(--text-muted); padding: 4rem 1rem; font-size: 1.05rem; grid-column: 1 / -1; background: var(--surface); border-radius: 16px; border: 1px dashed var(--border-light); }
     </style>
 </head>
 <body>
@@ -391,7 +135,7 @@
         <header>
             <div class="brand-badge">✨ 台灣諮商實習公告聚合引擎</div>
             <h1>心實境 MindIntern</h1>
-            <p>即時彙整全台大專心輔中心、精神醫療院所與社區諮商所之最新全職與兼職實習甄選簡章</p>
+            <p>即時彙整全台大專心輔中心、精神醫療院所與社區諮商所之最新實習簡章</p>
         </header>
 
         <div class="controls">
@@ -421,9 +165,6 @@
         <div class="grid" id="cardsGrid"></div>
     </div>
 
-    <!-- 返回頂部按鈕 -->
-    <button class="back-to-top" id="backToTopBtn" title="返回頂部">↑</button>
-
     <script src="data.js"></script>
     <script>
         let currentArea = "ALL";
@@ -437,7 +178,24 @@
         const searchInput = document.getElementById("searchInput");
         const tabBtns = document.querySelectorAll(".tab-btn");
         const exportBtn = document.getElementById("exportBtn");
-        const backToTopBtn = document.getElementById("backToTopBtn");
+
+        // 依據機構名稱自動對應高解析度意象封面圖
+        function getCoverImage(sourceName) {
+            const name = (sourceName || "").toLowerCase();
+            if (name.includes("[fb]")) {
+                // 社群 / FB 貼文風格
+                return "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=600&q=80";
+            } else if (name.includes("醫院") || name.includes("療養院") || name.includes("院區")) {
+                // 醫療院所 / 精神醫學部
+                return "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=600&q=80";
+            } else if (name.includes("大學") || name.includes("學院") || name.includes("學校")) {
+                // 大學校園 / 圖書館 / 心輔中心
+                return "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80";
+            } else {
+                // 社區諮商所 / 溫馨會談沙發空間
+                return "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80";
+            }
+        }
 
         function updateFavCount() {
             favCountSpan.innerText = favorites.length;
@@ -485,13 +243,17 @@
                 const isFav = favorites.includes(itemId);
                 const isFb = item["來源機構"] && item["來源機構"].includes("[FB]");
                 const institutionName = item["來源機構"] ? item["來源機構"].replace("[FB]", "").trim() : "未知機構";
+                const coverUrl = getCoverImage(item["來源機構"]);
 
                 return `
                     <div class="card">
-                        <button class="star-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite('${encodeURIComponent(itemId)}')" title="${isFav ? '取消收藏' : '加入收藏'}">
-                            ${isFav ? '★' : '☆'}
-                        </button>
-                        <div>
+                        <div class="card-cover-wrapper">
+                            <img src="${coverUrl}" alt="機構意象" class="card-cover" loading="lazy">
+                            <button class="star-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite('${encodeURIComponent(itemId)}')" title="${isFav ? '取消收藏' : '加入收藏'}">
+                                ${isFav ? '★' : '☆'}
+                            </button>
+                        </div>
+                        <div class="card-body">
                             <div class="card-header">
                                 <span class="badge badge-area">${item["地區"] || "全台"}</span>
                                 <span class="badge badge-role">${item["招募類別"] || "實習"}</span>
@@ -499,10 +261,10 @@
                             </div>
                             <div class="card-source">🏛️ ${institutionName}</div>
                             <div class="card-title">${item["公告標題"]}</div>
-                        </div>
-                        <div class="card-footer">
-                            <span>🕒 ${item["抓取時間"] ? item["抓取時間"].split(" ")[0] : "最新"}</span>
-                            <a href="${item["公告連結"]}" target="_blank" rel="noopener noreferrer" class="btn-link">檢視簡章 ↗</a>
+                            <div class="card-footer">
+                                <span>🕒 ${item["抓取時間"] ? item["抓取時間"].split(" ")[0] : "最新"}</span>
+                                <a href="${item["公告連結"]}" target="_blank" rel="noopener noreferrer" class="btn-link">檢視簡章 ↗</a>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -523,7 +285,6 @@
             render();
         });
 
-        // 匯出收藏清單 CSV
         exportBtn.addEventListener("click", () => {
             const favItems = list.filter(item => {
                 const itemId = item["公告連結"] || item["公告標題"];
@@ -554,19 +315,6 @@
             a.download = `諮商實習投遞清單_${new Date().toISOString().slice(0,10)}.csv`;
             a.click();
             URL.revokeObjectURL(url);
-        });
-
-        // 返回頂部平滑滾動
-        window.addEventListener("scroll", () => {
-            if (window.scrollY > 300) {
-                backToTopBtn.classList.add("show");
-            } else {
-                backToTopBtn.classList.remove("show");
-            }
-        });
-
-        backToTopBtn.addEventListener("click", () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
         updateFavCount();
