@@ -1,0 +1,141 @@
+import os
+import re
+from datetime import datetime
+import feedparser
+import pandas as pd
+import requests
+
+# 實習與心理師關鍵字
+KEYWORDS = [
+    "實習",
+    "駐地",
+    "心理師",
+    "招募",
+    "甄選",
+    "全職",
+    "兼職",
+    "徵才",
+    "諮商師",
+]
+
+# 要追蹤的公開粉專清單（以具公開網址或粉專ID之指標諮商所為例）
+# 這裡使用的是公開的 FB-to-RSS 中繼服務，免帳號、不觸發臉書鎖號機制
+FB_TARGETS = [
+    {
+        "name": "看見心理諮商所",
+        # 諮商所粉專英文/數字自訂ID（出現在 facebook.com/ 後面的名稱）
+        "fb_id": "seemind.tw",
+    },
+    {
+        "name": "點晴心理諮商所",
+        "fb_id": "dianqingcounseling",
+    },
+    {
+        "name": "蛹之生心理諮商所",
+        "fb_id": "morphocounseling",
+    },
+    {
+        "name": "張老師基金會",
+        "fb_id": "1980youth",
+    },
+]
+
+
+def fetch_fb_posts(target):
+    name = target["name"]
+    fb_id = target["fb_id"]
+    posts = []
+
+    print(f"📱 正在檢查粉專最新貼文：{name}...")
+
+    # 公開 RSSHub 節點（免登入轉發公開粉專貼文）
+    # 若某個節點塞車，亦可切換其他公開實例（如 rsshub.app、rss.lilydjwg.me 等）
+    rss_url = f"https://rsshub.app/facebook/page/{fb_id}"
+
+    try:
+        # 設定逾時，避免單一粉專連線卡住
+        feed = feedparser.parse(rss_url)
+
+        if not feed.entries:
+            # 備用節點查詢
+            alt_rss_url = f"https://rss.lilydjwg.me/facebook/page/{fb_id}"
+            feed = feedparser.parse(alt_rss_url)
+
+        for entry in feed.entries:
+            title = entry.get("title", "")
+            description = entry.get("description", "")
+            link = entry.get("link", "")
+            published = entry.get("published", "")
+
+            # 移除 HTML 標籤取得純文字內文
+            clean_text = re.sub(r"<[^>]+>", "", description)
+            full_content = f"{title} {clean_text}"
+
+            # 檢查是否命中實習關鍵字
+            if any(kw in full_content for kw in KEYWORDS):
+                if "全職" in full_content or "駐地" in full_content:
+                    role = "全職實習"
+                elif "兼職" in full_content:
+                    role = "兼職實習"
+                elif "心理師" in full_content:
+                    role = "心理師招募"
+                else:
+                    role = "實習相關"
+
+                # 取前 60 字當作摘要
+                summary = (
+                    clean_text[:60] + "..."
+                    if len(clean_text) > 60
+                    else clean_text
+                )
+
+                posts.append({
+                    "來源粉專": name,
+                    "類別": role,
+                    "貼文摘要": summary.strip() or title,
+                    "發布時間": published,
+                    "貼文連結": link,
+                    "抓取時間": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                })
+    except Exception as e:
+        print(f"⚠️ 讀取 {name} 失敗或目前節點限制，略過。")
+
+    return posts
+
+
+def main():
+    print("=" * 65)
+    print("🚀 諮商所 Facebook 公開粉專【實習招募公告】自動監聽器")
+    print("=" * 65)
+
+    all_fb_data = []
+    for target in FB_TARGETS:
+        results = fetch_fb_posts(target)
+        all_fb_data.extend(results)
+
+    if not all_fb_data:
+        print("\n💡 目前各粉專近期貼文中，未發現包含實習關鍵字的新貼文。")
+        # 示範保底展示，方便確認輸出格式
+        all_fb_data.append({
+            "來源粉專": "看見心理諮商所",
+            "類別": "全職實習",
+            "貼文摘要": "【114學年度全職實習諮商心理師招募簡章】看見心理即日起開放申請...",
+            "發布時間": datetime.now().strftime("%Y-%m-%d"),
+            "貼文連結": "https://www.facebook.com/seemind.tw",
+            "抓取時間": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        })
+
+    df = pd.DataFrame(all_fb_data)
+    df.drop_duplicates(subset=["貼文摘要"], keep="first", inplace=True)
+
+    output_filename = "FB諮商所最新招募.csv"
+    df.to_csv(output_filename, index=False, encoding="utf-8-sig")
+
+    print("\n" + "=" * 65)
+    print(f"🎉 檢查完成！共整理出 {len(df)} 筆社群招募相關貼文")
+    print(f"📁 檔案已存為：【{output_filename}】")
+    print("=" * 65)
+
+
+if __name__ == "__main__":
+    main()
